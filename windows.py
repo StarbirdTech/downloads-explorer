@@ -96,10 +96,19 @@ class Controller:
         self.root.bind("<Control-l>", lambda e: self.list_image_windows())
         self.root.overrideredirect(True)
         self.root.attributes("-topmost", True)
-        self.label = tk.Label(self.root, text="Press Ctrl+L to list image windows")
-        self.label.pack()
         self.screen_width = self.root.winfo_screenwidth()
         self.screen_height = self.root.winfo_screenheight()
+        self.canvas = tk.Canvas(
+            self.root, width=self.screen_width, height=self.screen_height, bg="black"
+        )
+        self.canvas.pack()
+        self.font = ("Helvetica", 24)
+        self.text = "Centered Text"
+        self.center_text()
+        self.root.configure(bg="darkgray")
+        self.root.geometry(
+            f"{int(self.screen_width*0.33)}x{int(self.screen_height*0.05)}+{int(self.screen_width/2-self.screen_width*0.33/2)}+0"
+        )
         self.images = UniqueImagePaths()
         self.image_windows = []
         self.root.after(random.randint(5000, 10000), lambda: self.create_image_window())
@@ -121,3 +130,16 @@ class Controller:
     def list_image_windows(self) -> None:
         for window in self.image_windows:
             print(window.window.winfo_x(), window.window.winfo_y())
+
+    def center_text(self):
+        width = self.canvas.winfo_reqwidth()
+        height = self.canvas.winfo_reqheight()
+
+        text_width = self.canvas.create_text(
+            width / 2, height / 2, text=self.text, font=self.font, fill="white"
+        )
+        self.canvas.tag_bind(
+            text_width,
+            "HeeHee",
+            lambda e: self.canvas.coords(text_width, width / 2, height / 2),
+        )

@@ -5,7 +5,7 @@ from PIL import Image
 
 class UniqueImagePaths:
     def __init__(self):
-        self.downloads_folder = os.path.join(os.curdir, "test")
+        self.downloads_folder = os.path.join(os.path.expanduser("~"), "Downloads")
         self.supported_extensions = [
             ".jpg",
             ".jpeg",
