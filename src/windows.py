@@ -1,5 +1,5 @@
 import tkinter as tk
-from PIL import Image, ImageTk
+from PIL import Image, ImageTk, ImageFile
 import random
 from files import UniqueImagePaths
 
@@ -28,15 +28,26 @@ class ImageWindow:
         self.label.bind("<B1-Motion>", self.snap_window)
         self.move_to_random_position()
         print("Made a window")
+        Image.MAX_IMAGE_PIXELS = None
+        ImageFile.LOAD_TRUNCATED_IMAGES = True
 
     def get_image(self):
         image_path = self.images.get_unique_path()
         print(image_path)
-        image = Image.open(image_path)
 
-        # Get the image dimensions
-        image_width, image_height = image.size
+        with Image.open(image_path) as img:
+            img.load()
+            image_width, image_height = img.size
 
+        # Define a maximum number of pixels
+        max_pixels = 89478480  # You can adjust this limit
+
+        # Check if the image size exceeds the maximum number of pixels
+        if image_width * image_height > max_pixels:
+            print(f"Skipping large image: {image_path}")
+            return None, None, None  # Returning None to indicate skipping
+
+        # If the image size is acceptable, proceed with processing
         # Calculate the maximum dimension for the image
         max_dimension = int(
             min(self.screen_width, self.screen_height) * random.randint(3, 9) / 10
@@ -51,7 +62,7 @@ class ImageWindow:
             new_width = int((max_dimension / image_height) * image_width)
 
         # Resize the image with LANCZOS resampling
-        image = image.resize((new_width, new_height), Image.LANCZOS)
+        image = img.resize((new_width, new_height), Image.LANCZOS)
 
         # Convert the resized image to a format that tkinter can display
         return (
